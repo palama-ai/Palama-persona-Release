@@ -1,0 +1,88 @@
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+
+export async function updateSession(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
+
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    anonKey!,
+    {
+      global: {
+        fetch: async (...args) => {
+          try {
+            return await fetch(...args)
+          } catch (error) {
+            console.error('Supabase fetch network error in middleware:', error)
+            return new Response(
+              JSON.stringify({
+                error: 'network_error',
+                message: 'Failed to fetch from Supabase: ' + (error instanceof Error ? error.message : String(error)),
+              }),
+              {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+              }
+            )
+          }
+        },
+      },
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // IMPORTANT: Avoid writing user sessions to global scope.
+  let user = null
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (!error) {
+      user = data.user
+    } else {
+      console.warn('Supabase auth error in middleware:', error.message)
+    }
+  } catch (err: any) {
+    console.error('Supabase fetch failed in middleware:', err?.message || err)
+  }
+
+  // Protection Logic
+  const pathname = request.nextUrl.pathname
+
+  // Protect /dashboard and nested routes
+  if (pathname.startsWith('/dashboard') && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/login'
+    return NextResponse.redirect(url)
+  }
+
+  // If user is logged in, prevent accessing login/signup auth pages (redirect to dashboard).
+  // Exception: /auth/desktop (desktop app authorization) and /auth/callback
+  // must stay reachable for logged-in users.
+  if (
+    pathname.startsWith('/auth') &&
+    !pathname.startsWith('/auth/desktop') &&
+    !pathname.startsWith('/auth/callback') &&
+    user
+  ) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  return supabaseResponse
+}

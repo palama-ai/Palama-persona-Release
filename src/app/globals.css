@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  
+  --nav-height: 64px;
+  
+  /* Typography scale matching OpenAI discipline */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3.5rem;
+  --text-6xl: 4.5rem;
+  --text-7xl: 5.5rem;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* White text selection — override browser blue default */
+::selection {
+  background: #ffffff;
+  color: #000000;
+}
+
+::-moz-selection {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Utilities */
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    padding: 0 40px;
+  }
+}
+
+.section-padding {
+  padding: 120px 0;
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding: 160px 0;
+  }
+}
+
+/* Heading Typography System */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: clamp(var(--text-4xl), 8vw, var(--text-7xl));
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+h2 {
+  font-size: clamp(var(--text-3xl), 5vw, var(--text-5xl));
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+h3 {
+  font-size: clamp(var(--text-2xl), 3vw, var(--text-3xl));
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+p {
+  line-height: 1.6;
+}
+
+.text-editorial {
+  font-size: var(--text-lg);
+  color: #a1a1aa;
+  max-width: 680px;
+}
+
+/* Cybernetic Bento Grid styles */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.bento-item {
+  position: relative;
+  border-radius: 0.75rem;
+  background: #050505;
+  border: 1px solid transparent;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bento-item::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    400px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+    rgba(255, 255, 255, 0.4),
+    transparent 40%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.bento-item:hover::before {
+  opacity: 1;
+}
+
+/* ───── Glow Card: reusable hover-glow border for any card ───── */
+.glow-card {
+  position: relative;
+  border-radius: 0.5rem;
+  background: #0a0a0a;
+  border: 1px solid transparent;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    400px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+    rgba(255, 255, 255, 0.4),
+    transparent 40%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.glow-card:hover::before {
+  opacity: 1;
+}
+
+/* ───── Glow Row: for list items with a bottom border ───── */
+.glow-row {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-row::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: radial-gradient(
+    300px circle at var(--mouse-x, 0) 0px,
+    rgba(255, 255, 255, 0.4),
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-row:hover::before {
+  opacity: 1;
+}
