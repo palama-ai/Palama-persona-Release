@@ -6,6 +6,7 @@ import Footer from "./components/ui/Footer";
 import CommandPalette from "./components/ui/CommandPalette";
 import ActionField from "./components/ui/ActionField";
 import { ScrollToTop } from "./components/ui/scroll-to-top";
+import FloatingOrb from "./components/ui/FloatingOrb";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,6 +32,7 @@ export default function RootLayout({
         <Navigation />
         <main style={{ flex: 1, position: "relative", zIndex: 10 }}>{children}</main>
         <Footer />
+        <FloatingOrb />
       </body>
     </html>
   );

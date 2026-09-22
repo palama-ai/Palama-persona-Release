@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { validateApiKey, logApiUsage } from '@/lib/api-keys'
+import { getQuota, recordTokenUsage, extractGatewayUsage, TOKEN_QUOTA_LIMIT } from '@/lib/token-usage'
 
 export type GatewayCaller =
   | { kind: 'session'; userId: string }
@@ -45,6 +46,22 @@ function gatewayConfig() {
 }
 
 /**
+ * Verified owner id for a caller, or null when anonymous.
+ * Engine (desktop) callers MUST present an `sb:<uid>` owner (a validated
+ * Supabase login) — raw/internal callers without login are rejected so that
+ * anonymous users can never consume quota or mint fresh identities.
+ * Session and api-key callers are inherently authenticated.
+ */
+export function resolveOwnerId(caller: Exclude<GatewayCaller, null>): string | null {
+  if (caller.kind === 'engine') {
+    return caller.ownerId.startsWith('sb:')
+      ? caller.ownerId.replace(/^sb:/, '') // console reads rows by raw uid
+      : null
+  }
+  return caller.userId
+}
+
+/**
  * Forward a request to the upstream model gateway with the server-side key.
  * Returns a passthrough Response (status + body preserved).
  */
@@ -59,22 +76,57 @@ export async function forwardToGateway(
       { status: 503 }
     )
   }
-  const ownerId =
-    init.caller.kind === 'engine'
-      ? init.caller.ownerId.replace(/^sb:/, '') // console reads rows by raw uid
-      : init.caller.userId
+  const ownerId = resolveOwnerId(init.caller)
+  if (!ownerId) {
+    return NextResponse.json(
+      { error: 'Login required: please sign in to use Palama models.' },
+      { status: 401 }
+    )
+  }
   let loggedModel = ''
   try {
     const parsed = init.body ? JSON.parse(init.body) : null
     if (parsed && typeof parsed.model === 'string') loggedModel = parsed.model.slice(0, 120)
   } catch {}
   await logApiUsage(ownerId, `gateway:${path}`, loggedModel)
+  // ── Weekly token quota (server-side, tamper-proof) ──
+  // Every model call flows through here, so this gate cannot be bypassed by
+  // touching desktop-local files. Fail closed when usage is unverifiable.
+  if (init.method !== 'GET') {
+    try {
+      const quota = await getQuota(ownerId)
+      if (quota.is_exceeded) {
+        const why = quota.unknown
+          ? 'Token usage could not be verified right now. Reconnect and try again.'
+          : `Token usage limit reached for this week: ${(quota.used_tokens ?? 0).toLocaleString()} / ${TOKEN_QUOTA_LIMIT.toLocaleString()} tokens (100%). Resets ${quota.resets_at}.`
+        return NextResponse.json({ error: why, quota }, { status: 429 })
+      }
+    } catch (e: any) {
+      return NextResponse.json(
+        { error: 'Token usage could not be verified right now. Reconnect and try again.' },
+        { status: 429 }
+      )
+    }
+  }
   const upstream = await fetch(`${base}${path}`, {
     method: init.method || 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
     body: init.body,
   })
   const text = await upstream.text()
+  // ── Record exact (or estimated) token usage for this completion ──
+  if (upstream.ok) {
+    try {
+      const used = extractGatewayUsage(
+        text,
+        upstream.headers.get('content-type') || '',
+        init.body || ''
+      )
+      if (used.prompt > 0 || used.completion > 0) {
+        await recordTokenUsage(ownerId, { model: loggedModel, ...used })
+      }
+    } catch {}
+  }
   return new NextResponse(text, {
     status: upstream.status,
     headers: { 'Content-Type': upstream.headers.get('content-type') || 'application/json' },

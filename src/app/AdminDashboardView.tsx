@@ -213,7 +213,7 @@ export default function AdminDashboardView() {
         {/* Card 1: Total Users */}
         <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", borderRadius: 14, padding: "20px 22px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--text-muted)" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Registered Users (عدد المسجلين)</span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Registered Users</span>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(46,123,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--signal)" }}>
               <Users size={18} />
             </div>
@@ -229,7 +229,7 @@ export default function AdminDashboardView() {
         {/* Card 2: Total Computers */}
         <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", borderRadius: 14, padding: "20px 22px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--text-muted)" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Total Computers (عدد الأجهزة)</span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Total Computers</span>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,159,10,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ff9f0a" }}>
               <Server size={18} />
             </div>
@@ -245,7 +245,7 @@ export default function AdminDashboardView() {
         {/* Card 3: Active Running Computers */}
         <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", borderRadius: 14, padding: "20px 22px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--text-muted)" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Active Running (تكون قيد التشغيل)</span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Active Running</span>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(52,199,89,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#34c759" }}>
               <Activity size={18} />
             </div>
@@ -265,7 +265,7 @@ export default function AdminDashboardView() {
         {/* Card 4: Revenue / Income */}
         <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", borderRadius: 14, padding: "20px 22px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--text-muted)" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Revenue & Income (المداخيل)</span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>Revenue & Income</span>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(175,82,222,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#af52de" }}>
               <DollarSign size={18} />
             </div>
@@ -287,7 +287,7 @@ export default function AdminDashboardView() {
           <div>
             <h2 style={{ fontSize: "1.15rem", fontWeight: 600, margin: "0 0 4px", display: "flex", alignItems: "center", gap: 8 }}>
               <Cpu size={18} style={{ color: "var(--signal)" }} />
-              OmniRoute Models Catalog (نماذج OmniRoute)
+              OmniRoute Models Catalog
             </h2>
             <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
               Manage registered AI models hosted on OmniRoute. Delete any model to exclude it from active Model Intelligence routing.
@@ -372,7 +372,7 @@ export default function AdminDashboardView() {
                     <th style={{ padding: "12px 16px", fontWeight: 600 }}>Name</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600 }}>Context</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600 }}>Cost Tier</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Actions (إجراءات)</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -426,7 +426,7 @@ export default function AdminDashboardView() {
                           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(239, 68, 68, 0.1)"; }}
                         >
                           <Trash2 size={12} />
-                          {deletingId === model.id ? "Deleting..." : "Delete (حذف)"}
+                          {deletingId === model.id ? "Deleting..." : "Delete"}
                         </button>
                       </td>
                     </tr>
